@@ -7,6 +7,7 @@ module Jinx
     include JSON::Serializable
 
     property file        : String
+    property type        : String
     property md5         : String
     property last_commit : Int32?
     property header      : String?
@@ -23,13 +24,19 @@ module Jinx
 
       File.copy(file, File.join(build.assets, File.basename(file)))
 
-      if File.extname(file) == ".lic"
+      case File.extname(file)
+      when ".lic", ".rb"
+        @type    = "script"
         parser   = headers(build, file, source)
         @tags    = parser.tags
         @header  = parser.file
         @version = parser.version
         @author  = parser.author
+      when ".xml", ".json", ".yml", ".yaml"
+        @type    = "data"
+        @tags = [] of String
       else
+        @type    = "unknown"
         @tags = [] of String
       end
     end

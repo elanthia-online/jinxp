@@ -17,12 +17,20 @@ describe Jinx::Build do
 
     pp build_2
 
-    build_2.manifest.available.size.should eq 2
+    build_2.manifest.available.size.should eq 3
     noop = build_2.manifest.available.find {|asset|
       asset.file.includes?("noop.lic")
     }
     fail "noop.lic did not compile" unless noop
     noop.tags.size.should eq 3
+    noop.type.should eq "script"
+
+    xml_file = build_2.manifest.available.find {|asset|
+      asset.file.includes?("empty.xml")
+    }
+    fail "empty.xml did not compile" unless xml_file
+    xml_file.tags.should be_empty
+    xml_file.type.should eq "data"
   end
 end
 
