@@ -32,11 +32,8 @@ module Jinx
         @header  = parser.file
         @version = parser.version
         @author  = parser.author
-      when ".xml", ".json", ".yml", ".yaml"
-        @type    = "data"
-        @tags = [] of String
       else
-        @type    = "unknown"
+        @type    = "data"
         @tags = [] of String
       end
     end
