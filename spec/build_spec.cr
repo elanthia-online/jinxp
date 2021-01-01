@@ -24,6 +24,7 @@ describe Jinx::Build do
     fail "noop.lic did not compile" unless noop
     noop.tags.size.should eq 3
     noop.type.should eq "script"
+    noop.last_commit.should_not be_nil
 
     xml_file = build_2.manifest.available.find {|asset|
       asset.file.includes?("empty.xml")
@@ -31,6 +32,7 @@ describe Jinx::Build do
     fail "empty.xml did not compile" unless xml_file
     xml_file.tags.should be_empty
     xml_file.type.should eq "data"
+    xml_file.last_commit.should_not be_nil
   end
 end
 
