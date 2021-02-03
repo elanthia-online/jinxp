@@ -9,12 +9,12 @@ module Jinx
     property file        : String
     property type        : String
     property md5         : String
-    property last_commit : Int32?
+    property last_commit : Int32|Int64
     property header      : String?
     property tags        : Array(String)
     property version     : String?
     property author      : String?
-    
+
 
     def initialize(build : Build, file : String)
       source       = File.read(file)
@@ -40,14 +40,14 @@ module Jinx
 
     def headers(build : Build, file : String, source : String)
       HeaderParser.new(
-        build:  build, 
-        file:   file, 
+        build:  build,
+        file:   file,
         source: source)
     end
 
     def _fetch_last_commit(file)
       ts = `git log -1 --date=unix --format="%ad" -- #{file}`.strip
-      ts.empty? ? nil : ts.to_i
+      ts.empty? ? Time.utc.to_unix : ts.to_i
     end
   end
 end
