@@ -21,20 +21,28 @@ module Jinx
       @md5         = Digest::SHA1.base64digest(source)
       @last_commit = _fetch_last_commit(file)
       @file        = "/assets/%s" % File.basename(file)
+      @tags        = [] of String
 
       File.copy(file, File.join(build.assets, File.basename(file)))
 
-      case File.extname(file)
-      when ".lic", ".rb"
-        @type    = "script"
-        parser   = headers(build, file, source)
-        @tags    = parser.tags
-        @header  = parser.file
-        @version = parser.version
-        @author  = parser.author
+      case File.basename(file)
+      when "lich.rb"
+        @type = "engine"
       else
-        @type    = "data"
-        @tags = [] of String
+        case File.extname(file)
+        when ".lic", ".rb"
+          @type    = "script"
+          parser   = headers(build, file, source)
+          @tags    = parser.tags
+          @header  = parser.file
+          @version = parser.version
+          @author  = parser.author
+        when ".gif", ".jpg", ".png"
+          @type    = "map"
+        else
+          puts File.extname(file)
+          @type    = "data"
+        end
       end
     end
 
