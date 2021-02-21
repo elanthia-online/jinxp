@@ -6,6 +6,8 @@ module Jinx
   class Asset
     include JSON::Serializable
 
+    KNOWN_ENGINES = %w[lich.rb]
+
     property file        : String
     property type        : String
     property md5         : String
@@ -14,7 +16,6 @@ module Jinx
     property tags        : Array(String)
     property version     : String?
     property author      : String?
-
 
     def initialize(build : Build, file : String)
       source       = File.read(file)
@@ -25,24 +26,20 @@ module Jinx
 
       File.copy(file, File.join(build.assets, File.basename(file)))
 
-      case File.basename(file)
-      when "lich.rb"
-        @type = "engine"
+      return handle_engine(file) if KNOWN_ENGINES.includes?(File.basename(file))
+
+      case File.extname(file)
+      when ".lic", ".rb"
+        @type    = "script"
+        parser   = headers(build, file, source)
+        @tags    = parser.tags
+        @header  = parser.file
+        @version = parser.version
+        @author  = parser.author
+      when ".gif", ".jpg", ".png"
+        @type    = "map"
       else
-        case File.extname(file)
-        when ".lic", ".rb"
-          @type    = "script"
-          parser   = headers(build, file, source)
-          @tags    = parser.tags
-          @header  = parser.file
-          @version = parser.version
-          @author  = parser.author
-        when ".gif", ".jpg", ".png"
-          @type    = "map"
-        else
-          puts File.extname(file)
-          @type    = "data"
-        end
+        @type    = "data"
       end
     end
 
@@ -56,6 +53,10 @@ module Jinx
     def _fetch_last_commit(file)
       ts = `git log -1 --date=unix --format="%ad" -- #{file}`.strip
       ts.empty? ? Time.utc.to_unix : ts.to_i
+    end
+
+    def handle_engine(file)
+      @type = "engine"
     end
   end
 end
