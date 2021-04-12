@@ -3,7 +3,7 @@ require "./manifest"
 require "./build"
 # TODO: Write documentation for `Jinx`
 module Jinx
-  VERSION = "0.3.1"
+  VERSION = "0.4.0"
 
   def self.build(input : String, output : String)
     Build.new(input:  File.join(Dir.current, input),
