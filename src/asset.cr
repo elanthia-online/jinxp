@@ -1,5 +1,6 @@
 require "digest/sha1"
 require "json"
+require "uri"
 require "./header_parser"
 
 module Jinx
@@ -21,7 +22,7 @@ module Jinx
       source       = File.read(file)
       @md5         = Digest::SHA1.base64digest(source)
       @last_commit = _fetch_last_commit(file)
-      @file        = "/assets/%s" % File.basename(file)
+      @file        = url_for(file)
       @tags        = [] of String
 
       File.copy(file, File.join(build.assets, File.basename(file)))
@@ -56,6 +57,11 @@ module Jinx
 
     def handle_engine(file)
       @type = "engine"
+    end
+
+    def url_for(file : String)
+      raw_path = "/assets/%s" % File.basename(file)
+      URI.encode(raw_path)
     end
   end
 end
