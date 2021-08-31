@@ -28,14 +28,16 @@ module Jinx
       File.copy(file, File.join(build.assets, File.basename(file)))
 
       case File.extname(file)
-      when ".lic", ".rb"
-        return handle_engine(file) if KNOWN_ENGINES.includes?(File.basename(file))
+      when ".lic"
         @type    = "script"
         parser   = headers(build, file, source)
         @tags    = parser.tags
         @header  = parser.file
         @version = parser.version
         @author  = parser.author
+      when ".rb"
+        return handle_engine(file) if KNOWN_ENGINES.includes?(File.basename(file))
+        @type    = "lib"
       when ".gif", ".jpg", ".png"
         @type    = "map"
       else
